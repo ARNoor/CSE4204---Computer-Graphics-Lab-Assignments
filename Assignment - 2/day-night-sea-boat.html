@@ -1,0 +1,330 @@
+
+
+<!-- Submitted by:-->
+<!-- Abrar Rafid Noor -->
+<!-- 170204059 -->
+
+<html>
+<title>LAB-2: Assignment Part B</title>
+<canvas id="webglcanvas" width="500" height="500"></canvas>
+
+<script>
+
+    var canvas = document.getElementById("webglcanvas"); 
+    var  gl = canvas.getContext("webgl");
+
+    var vertexShaderSource =
+       `attribute vec3 a_coords;
+	    attribute vec3 a_colors;
+		uniform float u_shift;
+		uniform float u_shift_up;
+        varying vec3 v_color;
+		
+		void main() {
+            gl_Position = vec4(a_coords.x + u_shift, 
+								a_coords.y+0.2, 
+								a_coords.z, 1.0);
+			
+			v_color = a_colors;
+        }`;
+
+	var fragmentShaderSource =
+
+       `precision mediump float;
+        varying vec3 v_color;
+		void main() {
+            gl_FragColor = vec4(v_color, 1.0);
+        }`;
+
+    var vsh = gl.createShader( gl.VERTEX_SHADER );
+    gl.shaderSource( vsh, vertexShaderSource );
+    gl.compileShader( vsh );
+	
+    var fsh = gl.createShader( gl.FRAGMENT_SHADER );
+    gl.shaderSource( fsh, fragmentShaderSource );
+    gl.compileShader( fsh );
+    
+    var prog = gl.createProgram(); 
+    
+    gl.attachShader( prog, vsh ); 
+    gl.attachShader( prog, fsh );
+    gl.linkProgram( prog ); 
+    gl.useProgram(prog); 
+
+    var a_coords_location = gl.getAttribLocation(prog, "a_coords");
+
+	var shift = 0.0;
+
+    var coords = new Float32Array( [
+									//boat
+									-1.0, -0.3, 0.0,
+									-0.9, -0.5, 0.0,
+									-0.8, -0.3, 0.0,
+									
+									-0.8, -0.3, 0.0,
+									-0.9, -0.5, 0.0,
+									-0.7, -0.5, 0.0,
+									
+									-0.8, -0.3, 0.0,
+									-0.7, -0.5, 0.0,
+									-0.6, -0.3, 0.0,
+									
+									-0.6, -0.3, 0.0,
+									-0.7, -0.5, 0.0,
+									-0.5, -0.5, 0.0,
+									
+									-0.6, -0.3, 0.0,
+									-0.5, -0.5, 0.0,
+									-0.4, -0.3, 0.0,
+									
+									//flag
+									-0.75, -0.3, 0.0,
+									-0.6, -0.05, 0.0,
+									-0.6, -0.3, 0.0,
+									
+									
+									//sea
+									-5.0, -0.4, 0.0,
+									1.0, -0.4, 0.0,
+									-5.0, -5.0, 0.0,
+									
+									1.0, -0.4, 0.0,
+									-5.0, -5.0, 0.0,
+									5.0, -5.0, 0.0,
+									
+									//sun
+									-0.75, 0.5, 0.0,
+									-0.6, 0.45, 0.0,
+									-0.6, 0.55, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.9, 0.45, 0.0,
+									-0.9, 0.55, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.7, 0.35, 0.0,
+									-0.8, 0.35, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.7, 0.65, 0.0,
+									-0.8, 0.65, 0.0,
+									
+									
+									
+									-0.75, 0.5, 0.0,
+									-0.6, 0.45, 0.0,
+									-0.7, 0.35, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.8, 0.35, 0.0,
+									-0.9, 0.45, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.7, 0.65, 0.0,
+									-0.6, 0.55, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.9, 0.55, 0.0,
+									-0.8, 0.65, 0.0,
+									
+									
+									
+									-0.75, 0.5, 0.0,
+									-0.6, 0.45, 0.0,
+									-0.63, 0.4, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.7, 0.35, 0.0,
+									-0.63, 0.4, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.8, 0.35, 0.0,
+									-0.86, 0.39, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.86, 0.39, 0.0,
+									-0.9, 0.45, 0.0,
+									
+									
+									-0.75, 0.5, 0.0,
+									-0.86, 0.62, 0.0,
+									-0.9, 0.55, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.8, 0.65, 0.0,
+									-0.86, 0.62, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.64, 0.62, 0.0,
+									-0.7, 0.65, 0.0,
+									
+									-0.75, 0.5, 0.0,
+									-0.64, 0.62, 0.0,
+									-0.6, 0.55, 0.0,
+									
+									] );
+	
+    var a_coords_buffer = gl.createBuffer(); 
+    gl.bindBuffer(gl.ARRAY_BUFFER, a_coords_buffer); 
+    gl.bufferData(gl.ARRAY_BUFFER, coords, gl.STATIC_DRAW); 
+    gl.vertexAttribPointer(a_coords_location, 3, gl.FLOAT, false, 0, 0); 
+    gl.enableVertexAttribArray(a_coords_location);
+	
+	
+	
+	var u_color_location = gl.getUniformLocation(prog, "v_color");
+	var a_colors_location = gl.getAttribLocation(prog, "a_colors");
+	var colors = new Float32Array( [
+								//boat 
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								0.75, 0.38, 0.25,
+								
+								//flag
+								1.0, 1.0, 1.0,
+								1.0, 1.0, 1.0,
+								1.0, 1.0, 1.0,
+								
+								//sea
+								0.17, 0.74, 0.91,
+								0.17, 0.74, 0.91,
+								0.17, 0.74, 0.91,
+								
+								0.17, 0.74, 0.91,
+								0.17, 0.74, 0.91,
+								0.17, 0.74, 0.91,
+								
+								//sun
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+								0.90, 0.97, 0.10,
+									
+									] );
+	//gl.uniform3fv(u_color_location,  color);
+	var a_colors_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, a_colors_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(a_colors_location, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_colors_location);
+	
+	var u_shift_location = gl.getUniformLocation(prog, "u_shift");
+	var u_shift_up_location = gl.getUniformLocation(prog, "u_shift_up");
+	
+	var shift_up = 1;
+	
+	gl.uniform1f(u_shift_location, shift);
+	gl.uniform1f(u_shift_up_location, shift_up);
+	
+	gl.clearColor(0.78, 0.95, 0.96, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, 72); 
+	
+	document.onkeydown = function ()
+	{  
+	shift = shift + 0.1;
+    gl.uniform1f(u_shift_location, shift);
+	if(shift < 0.4){
+		gl.clearColor(0.65, 0.84, 0.96, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.drawArrays(gl.TRIANGLES, 0, 72); 
+	}
+	else if(shift < 0.7){
+		gl.clearColor(0.44, 0.56, 0.64, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.drawArrays(gl.TRIANGLES, 0, 72); 
+	}
+	else if(shift < 1.0){
+		gl.clearColor(0.28, 0.36, 0.40, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.drawArrays(gl.TRIANGLES, 0, 72); 
+	}
+    else{
+		gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.drawArrays(gl.TRIANGLES, 0, 72); 
+	}
+	
+	
+	};
+
+</script>
+
+
+
+</html>

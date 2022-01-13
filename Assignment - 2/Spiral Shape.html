@@ -1,0 +1,117 @@
+<!-- Submitted by:-->
+<!-- Abrar Rafid Noor -->
+<!-- 170204059 -->
+
+<html>
+<title>LAB-2: Assignment Part A</title>
+<canvas id="webglcanvas" width="500" height="500"></canvas>
+
+<script>
+
+    var canvas = document.getElementById("webglcanvas");
+    var gl = canvas.getContext("webgl");
+
+    var vertexShaderSource =
+        `attribute vec3 a_coords;
+         uniform float point_inc;
+		 
+		void main() {
+		  gl_Position = vec4(a_coords, 1.0);  
+		  gl_PointSize = point_inc+35.0*((distance(0.0, a_coords.x)*distance(0.0, a_coords.x)+distance(0.0, a_coords.y)*distance(0.0, a_coords.y))*0.5);
+		  //gl_PointSize = point_inc+(distance(a_coords.y, a_coords.x))*12.0;
+        }`;
+
+    var fragmentShaderSource =
+
+        `precision mediump float;
+        uniform vec3 u_color;
+        void main() {
+            gl_FragColor = vec4(u_color, 1.0);
+        }`;
+
+    var vsh = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vsh, vertexShaderSource);
+    gl.compileShader(vsh);
+
+    var fsh = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fsh, fragmentShaderSource);
+    gl.compileShader(fsh);
+
+    console.log(gl.getShaderParameter(vsh, gl.COMPILE_STATUS));
+    console.log(gl.getShaderParameter(fsh, gl.COMPILE_STATUS));
+
+    var prog = gl.createProgram();
+
+    gl.attachShader(prog, vsh);
+    gl.attachShader(prog, fsh);
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    console.log(gl.getProgramParameter(prog, gl.LINK_STATUS));
+
+    var a_coords_location = gl.getAttribLocation(prog, "a_coords");
+    
+	var pic = 1;
+	
+	var r = 0.0;
+    var x = 0.0;
+	var y = 0.0;
+    //var rot = -1;
+	
+	//var inc_dist = 0.0;
+    var values = [0.0, 0.0];
+	var theta = 95;
+	
+    var coords = new Float32Array(values);
+	
+    var a_coords_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, a_coords_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, coords, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(a_coords_location, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_coords_location);
+
+    var u_color_location = gl.getUniformLocation(prog, "u_color");
+	var point_inc_location = gl.getUniformLocation(prog, "point_inc");
+	gl.uniform1f(point_inc_location, pic);
+    var color = new Float32Array([1.0, 0.0, 0.0]);
+    gl.uniform3fv(u_color_location, color);
+	
+
+    gl.clearColor(1.0, 1.0, 0.85, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.POINTS, 0, values.length / 2);
+
+    canvas.onmousedown = function () {
+
+			for (let i = 1; i < 7; i++) {
+				pic = 1;
+				
+				x = x + r * Math.sin(theta)*0.0075;
+				y = y - r * Math.cos(theta)*0.0075;
+				
+				values.push(x);
+				values.push(y);
+				//inc_dist = inc_dist + 0.005;
+				theta = theta + 0.185; //angle of the curves
+				r = r + 0.125; //the radius of the circles
+			
+			}
+		
+			var coords = new Float32Array(values);
+			console.log(values);
+
+			var a_coords_buffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, a_coords_buffer);
+			gl.bufferData(gl.ARRAY_BUFFER, coords, gl.STATIC_DRAW);
+			gl.vertexAttribPointer(a_coords_location, 2, gl.FLOAT, false, 0, 0);
+
+			gl.clearColor(1.0, 1.0, 0.85, 1.0);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			gl.drawArrays(gl.POINTS, 0, values.length / 2);
+		
+		
+		
+    };
+
+</script>
+</html>
